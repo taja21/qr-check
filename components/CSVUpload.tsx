@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { Button } from '../../components/ui/button';
+import { Button } from '../ui/button';
 
 
 export default function CSVUpload({ formId }: { formId: string }) {
