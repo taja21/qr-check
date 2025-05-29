@@ -15,7 +15,7 @@ export default function CheckinFormBuilder({
   const [customField, setCustomField] = useState('');
 
   const toggleField = (field: string) => {
-    setSelectedFields(prev =>
+    setSelectedFields((prev: string[]) =>
       prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]
     );
   };
