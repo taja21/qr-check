@@ -1,4 +1,3 @@
-// 📄 components/CheckinFormBuilder.tsx
 'use client';
 
 import { useState } from 'react';
@@ -15,9 +14,11 @@ export default function CheckinFormBuilder({
   const [customField, setCustomField] = useState('');
 
   const toggleField = (field: string) => {
-    setSelectedFields((prev: string[]) =>
-      prev.includes(field) ? prev.filter(f => f !== field) : [...prev, field]
-    );
+    if (selectedFields.includes(field)) {
+      setSelectedFields(selectedFields.filter(f => f !== field));
+    } else {
+      setSelectedFields([...selectedFields, field]);
+    }
   };
 
   const handleAddCustomField = () => {
