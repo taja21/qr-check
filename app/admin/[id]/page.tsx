@@ -1,10 +1,9 @@
-// 📄 app/admin/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { DownloadIcon, ArrowLeftIcon, PinIcon } from 'lucide-react';
+import { DownloadIcon, PinIcon } from 'lucide-react';
 
 export default function AdminFormPage() {
   const { id } = useParams();
@@ -64,10 +63,11 @@ export default function AdminFormPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.back()}
-            className="text-blue-600 font-semibold flex items-center"
+            onClick={() => router.push('/admin')}
+            className="text-blue-600 font-semibold flex items-center gap-1"
           >
-            <ArrowLeftIcon className="w-4 h-4 mr-1" /> 이전
+            <span className="text-lg">📋</span>
+            출석 관리 페이지 보기
           </button>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <PinIcon className="w-5 h-5 text-red-500" />

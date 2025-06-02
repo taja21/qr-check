@@ -1,18 +1,44 @@
-// 📄 app/admin/new/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/browser';
 
 export default function NewFormPage() {
   const [title, setTitle] = useState('');
   const [fields, setFields] = useState<string[]>([]);
   const [customField, setCustomField] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // ✅ 전화번호 → 전화번호(뒤 4자리) 로 변경
-  const predefinedFields = ['부서', '직급', '성명', '생년월일(800303)', '전화번호(뒤 4자리)'];
+  const predefinedFields = [
+    '부서',
+    '직급',
+    '성명',
+    '생년월일(800303)',
+    '전화번호(뒤 4자리)',
+  ];
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
+      if (!session || error) {
+        alert('사용자 정보를 확인할 수 없습니다. 다시 로그인 해주세요.');
+        router.replace('/login');
+      } else {
+        setUser(session.user);
+      }
+
+      setLoading(false);
+    };
+
+    fetchUser();
+  }, [router]);
 
   const toggleField = (field: string) => {
     setFields(prev =>
@@ -29,14 +55,18 @@ export default function NewFormPage() {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || fields.length === 0) {
-      alert('제목과 항목을 입력하세요.');
+    if (!title.trim() || fields.length === 0 || !user) {
+      alert('제목, 항목, 로그인 여부를 확인하세요.');
       return;
     }
 
     const { data, error } = await supabase
       .from('forms')
-      .insert({ title, fields })
+      .insert({
+        title,
+        fields,
+        created_by: user.id,
+      })
       .select()
       .single();
 
@@ -44,9 +74,13 @@ export default function NewFormPage() {
       alert('저장 실패: ' + error.message);
     } else {
       alert('출석관리 페이지가 만들어졌습니다.');
-      router.push(`/admin/${data.id}`);
+      router.push('/admin'); // ✅ 출석 관리 페이지로 이동
     }
   };
+
+  if (loading) {
+    return <p className="text-center mt-10">사용자 정보를 확인 중입니다...</p>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto mt-10 p-4">

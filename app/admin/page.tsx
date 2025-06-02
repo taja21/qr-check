@@ -3,21 +3,32 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase/browser';
 import QRCode from 'react-qr-code';
 import * as XLSX from 'xlsx';
 
 export default function AdminListPage() {
   const [forms, setForms] = useState<any[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetchForms();
   }, []);
 
   const fetchForms = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      router.replace('/login');
+      return;
+    }
+
     const { data } = await supabase
       .from('forms')
       .select('*')
+      .eq('created_by', user.id)
       .order('created_at', { ascending: false });
 
     if (data) setForms(data);
@@ -93,7 +104,7 @@ export default function AdminListPage() {
               <th className="p-3 border-r">제목</th>
               <th className="p-3 border-r">생성일</th>
               <th className="p-3 border-r">QR 및 다운로드</th>
-              <th className="p-3 border-r">엑셀 업로드</th>
+              <th className="p-3 border-r">교육 대상 업로드</th>
               <th className="p-3">삭제</th>
             </tr>
           </thead>
@@ -112,12 +123,12 @@ export default function AdminListPage() {
                   <div className="flex flex-col items-center gap-1">
                     <div className="bg-white p-2 rounded shadow">
                       <QRCode
-                        value={`http://localhost:3000/checkin?form_id=${form.id}`}
+                        value={`${location.origin}/checkin?form_id=${form.id}`}
                         size={64}
                       />
                     </div>
                     <a
-                      href={`http://localhost:3000/checkin?form_id=${form.id}`}
+                      href={`/checkin?form_id=${form.id}`}
                       download
                       className="text-xs text-blue-500 underline"
                     >
@@ -127,7 +138,7 @@ export default function AdminListPage() {
                 </td>
                 <td className="p-3 border-r">
                   <label className="inline-block bg-gray-100 px-4 py-2 rounded cursor-pointer hover:bg-gray-200 text-sm text-black">
-                    📁 엑셀 업로드
+                    📁 교육 대상 업로드
                     <input
                       type="file"
                       accept=".xlsx,.xls"
